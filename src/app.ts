@@ -1,6 +1,14 @@
 import express, { Request, Response } from 'express';
+import { UserRoutes } from './app/modules/user/user.route';
+import cors from 'cors'
 
 const app = express(); // 🔹 Express অ্যাপ ইনিশিয়ালাইজ করা হচ্ছে
+
+app.use(express.json())
+app.use(cors())
+
+
+app.use('/api/v1/user', UserRoutes)
 
 // 🔰 রুট রাউট: ব্রাউজারে "/" ভিজিট করলে এই রেসপন্স পাওয়া যাবে
 app.get('/', (req: Request, res: Response) => {
