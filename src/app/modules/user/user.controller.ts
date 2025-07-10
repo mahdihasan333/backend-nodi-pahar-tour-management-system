@@ -24,4 +24,4 @@ export const UserControllers = {
 }
 
 
-// route matching -> controller -> service -> model -> DB
+// route matching -> controller -> service -> model -> DB connect
