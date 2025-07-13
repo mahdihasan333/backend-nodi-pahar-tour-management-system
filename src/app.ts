@@ -2,6 +2,8 @@ import express, { Request, Response } from 'express';
 import cors from 'cors'
 import { router } from './app/routes';
 import { globalErrorHandler } from './app/middlewares/globalErrorHandler';
+import notFound from './app/middlewares/notFound';
+
 
 const app = express(); // 🔹 Express অ্যাপ ইনিশিয়ালাইজ করা হচ্ছে
 
@@ -20,5 +22,7 @@ app.get('/', (req: Request, res: Response) => {
 
 
 app.use(globalErrorHandler)
+
+app.use(notFound)
 
 export default app; // 🔹 app কে export করা হচ্ছে server.ts এ ব্যবহারের জন্য
