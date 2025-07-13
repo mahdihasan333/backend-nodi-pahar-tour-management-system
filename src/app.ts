@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors'
 import { router } from './app/routes';
+import { globalErrorHandler } from './app/middlewares/globalErrorHandler';
 
 const app = express(); // 🔹 Express অ্যাপ ইনিশিয়ালাইজ করা হচ্ছে
 
@@ -16,5 +17,8 @@ app.get('/', (req: Request, res: Response) => {
         message: 'Welcome to NodiPahar Tour Management System Backend' // 🔸 রেসপন্স ম্যাসেজ
     });
 });
+
+
+app.use(globalErrorHandler)
 
 export default app; // 🔹 app কে export করা হচ্ছে server.ts এ ব্যবহারের জন্য
