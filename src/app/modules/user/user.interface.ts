@@ -9,7 +9,7 @@ export enum Role {
 
 //auth providers
 /**
- * email, password
+ * email, password 
  * google authentication
  */
 
