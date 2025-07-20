@@ -1,6 +1,8 @@
 import AppError from "../../errorHelpers/AppError";
 import { IAuthProvider, IUser } from "./user.interface";
 import { User } from "./user.model";
+import httpStatus from 'http-status-codes';
+import bcryptjs from 'bcryptjs'
 
 const createUser = async (payload: Partial<IUser>) => {
     const { email, password, ...rest } = payload;
