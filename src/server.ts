@@ -4,6 +4,7 @@ import { Server } from "http";
 import mongoose from "mongoose";
 import app from "./app"; //
 import { envVars } from "./app/config/env"; //
+import { seedSuperAdmin } from "./app/utils/seedSuperAdmin";
 
 let server: Server; // 👉 Server কে বাইরের scope এ রাখা হয়েছে যাতে দরকারে বন্ধ করা যায়
 
@@ -25,7 +26,10 @@ const startServer = async () => {
     }
 };
 
-startServer(); // 🔄 ফাংশনটি চালু করা হচ্ছে
+(async () => {
+    await startServer()
+    await seedSuperAdmin()
+})()
 
 // 🚦 SIGTERM signal: ক্লাউড প্রোভাইডার (e.g., Heroku, Render) থেকে shutdown সিগন্যাল পেলে
 process.on("SIGTERM", () => {
