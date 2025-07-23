@@ -1,51 +1,127 @@
-import httpStatus from "http-status-codes";
-import { JwtPayload } from "jsonwebtoken";
-import { envVars } from "../config/env";
-import AppError from "../errorHelpers/AppError";
-import { IsActive, IUser } from "../modules/user/user.interface";
-import { User } from "../modules/user/user.model";
-import { generateToken, verifyToken } from "./jwt";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { NextFunction, Request, Response } from "express"
+import httpStatus from "http-status-codes"
+import { JwtPayload } from "jsonwebtoken"
+import { envVars } from "../../config/env"
+import AppError from "../../errorHelpers/AppError"
+import { catchAsync } from "../../utils/catchAsync"
+import { sendResponse } from "../../utils/sendResponse"
+import { setAuthCookie } from "../../utils/setCookie"
+import { createUserTokens } from "../../utils/userTokens"
+import { AuthServices } from "./auth.service"
 
-export const createUserTokens = (user: Partial<IUser>) => {
-    const jwtPayload = {
-        userId: user._id,
-        email: user.email,
-        role: user.role
+const credentialsLogin = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const loginInfo = await AuthServices.credentialsLogin(req.body)
+
+    // res.cookie("accessToken", loginInfo.accessToken, {
+    //     httpOnly: true,
+    //     secure: false
+    // })
+
+
+    // res.cookie("refreshToken", loginInfo.refreshToken, {
+    //     httpOnly: true,
+    //     secure: false,
+    // })
+
+    setAuthCookie(res, loginInfo)
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.OK,
+        message: "User Logged In Successfully",
+        data: loginInfo,
+    })
+})
+const getNewAccessToken = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const refreshToken = req.cookies.refreshToken;
+    if (!refreshToken) {
+        throw new AppError(httpStatus.BAD_REQUEST, "No refresh token recieved from cookies")
     }
-    const accessToken = generateToken(jwtPayload, envVars.JWT_ACCESS_SECRET, envVars.JWT_ACCESS_EXPIRES)
+    const tokenInfo = await AuthServices.getNewAccessToken(refreshToken as string)
 
-    const refreshToken = generateToken(jwtPayload, envVars.JWT_REFRESH_SECRET, envVars.JWT_REFRESH_EXPIRES)
+    // res.cookie("accessToken", tokenInfo.accessToken, {
+    //     httpOnly: true,
+    //     secure: false
+    // })
 
+    setAuthCookie(res, tokenInfo);
 
-    return {
-        accessToken,
-        refreshToken
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.OK,
+        message: "New Access Token Retrived Successfully",
+        data: tokenInfo,
+    })
+})
+const logout = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+
+    res.clearCookie("accessToken", {
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax"
+    })
+    res.clearCookie("refreshToken", {
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax"
+    })
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.OK,
+        message: "User Logged Out Successfully",
+        data: null,
+    })
+})
+const resetPassword = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+
+    const newPassword = req.body.newPassword;
+    const oldPassword = req.body.oldPassword;
+    const decodedToken = req.user
+
+    await AuthServices.resetPassword(oldPassword, newPassword, decodedToken as JwtPayload);
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.OK,
+        message: "Password Changed Successfully",
+        data: null,
+    })
+})
+const googleCallbackController = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+
+    let redirectTo = req.query.state ? req.query.state as string : ""
+
+    if (redirectTo.startsWith("/")) {
+        redirectTo = redirectTo.slice(1)
     }
-}
 
-export const createNewAccessTokenWithRefreshToken = async (refreshToken: string) => {
+    // /booking => booking , => "/" => ""
+    const user = req.user;
 
-    const verifiedRefreshToken = verifyToken(refreshToken, envVars.JWT_REFRESH_SECRET) as JwtPayload
-
-
-    const isUserExist = await User.findOne({ email: verifiedRefreshToken.email })
-
-    if (!isUserExist) {
-        throw new AppError(httpStatus.BAD_REQUEST, "User does not exist")
-    }
-    if (isUserExist.isActive === IsActive.BLOCKED || isUserExist.isActive === IsActive.INACTIVE) {
-        throw new AppError(httpStatus.BAD_REQUEST, `User is ${isUserExist.isActive}`)
-    }
-    if (isUserExist.isDeleted) {
-        throw new AppError(httpStatus.BAD_REQUEST, "User is deleted")
+    if (!user) {
+        throw new AppError(httpStatus.NOT_FOUND, "User Not Found")
     }
 
-    const jwtPayload = {
-        userId: isUserExist._id,
-        email: isUserExist.email,
-        role: isUserExist.role
-    }
-    const accessToken = generateToken(jwtPayload, envVars.JWT_ACCESS_SECRET, envVars.JWT_ACCESS_EXPIRES)
+    const tokenInfo = createUserTokens(user)
 
-    return accessToken
+    setAuthCookie(res, tokenInfo)
+
+    // sendResponse(res, {
+    //     success: true,
+    //     statusCode: httpStatus.OK,
+    //     message: "Password Changed Successfully",
+    //     data: null,
+    // })
+
+    res.redirect(`${envVars.FRONTEND_URL}/${redirectTo}`)
+})
+
+export const AuthControllers = {
+    credentialsLogin,
+    getNewAccessToken,
+    logout,
+    resetPassword,
+    googleCallbackController
 }
