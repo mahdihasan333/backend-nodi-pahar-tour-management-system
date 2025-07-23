@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextFunction, Request, Response } from "express"
 import httpStatus from "http-status-codes"
 import { JwtPayload } from "jsonwebtoken"
+import passport from "passport"
 import { envVars } from "../../config/env"
 import AppError from "../../errorHelpers/AppError"
 import { catchAsync } from "../../utils/catchAsync"
@@ -9,7 +11,6 @@ import { sendResponse } from "../../utils/sendResponse"
 import { setAuthCookie } from "../../utils/setCookie"
 import { createUserTokens } from "../../utils/userTokens"
 import { AuthServices } from "./auth.service"
-import passport from "passport"
 
 const credentialsLogin = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     // const loginInfo = await AuthServices.credentialsLogin(req.body)
@@ -69,14 +70,7 @@ const credentialsLogin = catchAsync(async (req: Request, res: Response, next: Ne
     //     secure: false,
     // })
 
-    setAuthCookie(res, loginInfo)
 
-    sendResponse(res, {
-        success: true,
-        statusCode: httpStatus.OK,
-        message: "User Logged In Successfully",
-        data: loginInfo,
-    })
 })
 const getNewAccessToken = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const refreshToken = req.cookies.refreshToken;
