@@ -2,10 +2,10 @@
 import bcryptjs from "bcryptjs";
 import passport from "passport";
 import { Strategy as GoogleStrategy, Profile, VerifyCallback } from "passport-google-oauth20";
+import { Strategy as LocalStrategy } from "passport-local";
 import { Role } from "../modules/user/user.interface";
 import { User } from "../modules/user/user.model";
 import { envVars } from "./env";
-
 
 
 passport.use(
@@ -49,7 +49,6 @@ passport.use(
     })
 )
 
-
 passport.use(
     new GoogleStrategy(
         {
@@ -62,7 +61,7 @@ passport.use(
                 const email = profile.emails?.[0].value;
 
                 if (!email) {
-                    return done(null, false, { message: "No email found" })
+                    return done(null, false, { mesaage: "No email found" })
                 }
 
                 let user = await User.findOne({ email })
