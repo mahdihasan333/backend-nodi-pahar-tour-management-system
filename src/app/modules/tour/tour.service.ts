@@ -118,7 +118,7 @@ const getAllTours = async (query: Record<string, string>) => {
 
     return {
         data,
-        // meta
+        meta
     }
 };
 
