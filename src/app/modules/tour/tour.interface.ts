@@ -7,7 +7,7 @@ export interface ITour {
     title: string;
     slug: string;
     description?: string;
-    images?: string[];
+    // images?: string[];
     location?: string;
     costFrom?: number;
     startDate?: Date
