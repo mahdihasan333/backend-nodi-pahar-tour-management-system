@@ -189,6 +189,6 @@ export const TourService = {
     updateTourType,
     getAllTourTypes,
     getAllTours,
-    // updateTour,
-    // deleteTour,
+    updateTour,
+    deleteTour,
 };
