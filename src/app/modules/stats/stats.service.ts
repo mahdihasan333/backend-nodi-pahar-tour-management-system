@@ -278,6 +278,65 @@ const getBookingStats = async () => {
     return { totalBooking, totalBookingByStatus, bookingsPerTour, avgGuestCountPerBooking: avgGuestCountPerBooking[0].avgGuestCount, bookingsLast7Days, bookingsLast30Days, totalBookingByUniqueUsers }
 }
 
+const getPaymentStats = async () => {
+
+    const totalPaymentPromise = Payment.countDocuments();
+
+    const totalPaymentByStatusPromise = Payment.aggregate([
+        //stage 1 group
+        {
+            $group: {
+                _id: "$status",
+                count: { $sum: 1 }
+            }
+        }
+    ])
+
+    const totalRevenuePromise = Payment.aggregate([
+        //stage1 match stage
+        {
+            $match: { status: PAYMENT_STATUS.PAID }
+        },
+        {
+            $group: {
+                _id: null,
+                totalRevenue: { $sum: "$amount" }
+            }
+        }
+    ])
+
+    const avgPaymentAmountPromise = Payment.aggregate([
+        //stage 1 group stage
+        {
+            $group: {
+                _id: null,
+                avgPaymentAMount: { $avg: "$amount" }
+            }
+        }
+    ])
+
+    const paymentGatewayDataPromise = Payment.aggregate([
+        //stage 1 group stage
+        {
+            $group: {
+                _id: { $ifNull: ["$paymentGatewayData.status", "UNKNOWN"] },
+                count: { $sum: 1 }
+            }
+        }
+    ])
+
+
+
+    const [totalPayment, totalPaymentByStatus, totalRevenue, avgPaymentAmount, paymentGatewayData] = await Promise.all([
+        totalPaymentPromise,
+        totalPaymentByStatusPromise,
+        totalRevenuePromise,
+        avgPaymentAmountPromise,
+        paymentGatewayDataPromise
+
+    ])
+    return { totalPayment, totalPaymentByStatus, totalRevenue, avgPaymentAmount, paymentGatewayData }
+}
 
 
 /**
