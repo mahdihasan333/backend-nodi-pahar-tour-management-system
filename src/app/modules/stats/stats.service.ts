@@ -140,7 +140,7 @@ const getTourStats = async () => {
         },
 
         //stage-4 lookup stage
-        // {
+        {
             $lookup: {
                 from: "tours",
                 let: { tourId: "$_id" },
