@@ -9,7 +9,7 @@ export enum Role {
 
 //auth providers
 /**
- * email, password 
+ * email, password
  * google authentication
  */
 
@@ -36,7 +36,9 @@ export interface IUser {
     isActive?: IsActive;
     isVerified?: boolean;
     role: Role;
-    auths: IAuthProvider[]
-    bookings?: Types.ObjectId[]
-    guides?: Types.ObjectId[]
+    auths: IAuthProvider[];
+    bookings?: Types.ObjectId[];
+    guides?: Types.ObjectId[];
+    createdAt?: Date
+
 }
