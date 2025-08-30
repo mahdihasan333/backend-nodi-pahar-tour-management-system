@@ -11,7 +11,7 @@ const generateOtp = (length = 6) => {
 
     // 10 ** 5 => 10 * 10 *10 *10 *10 * 10 => 1000000
 
-    // return otp
+    return otp
 }
 
 const sendOTP = async (email: string, name: string) => {
