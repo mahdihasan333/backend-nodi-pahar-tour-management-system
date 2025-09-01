@@ -1,4 +1,3 @@
-
 import { deleteImageFromCLoudinary } from "../../config/cloudinary.config";
 import { QueryBuilder } from "../../utils/QueryBuilder";
 import { tourSearchableFields, tourTypeSearchableFields } from "./tour.constant";

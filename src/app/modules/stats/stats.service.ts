@@ -326,7 +326,6 @@ const getPaymentStats = async () => {
     ])
 
 
-
     const [totalPayment, totalPaymentByStatus, totalRevenue, avgPaymentAmount, paymentGatewayData] = await Promise.all([
         totalPaymentPromise,
         totalPaymentByStatusPromise,
